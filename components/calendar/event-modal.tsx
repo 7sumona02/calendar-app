@@ -72,9 +72,9 @@ export default function EventModal({ event, date, onClose, onSave, onDelete }: E
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="text-xl">{event ? "Edit Event" : "Add Event"}</DialogTitle>
-          <Button variant="ghost" size="icon" className="absolute right-4 top-4" onClick={onClose}>
+          {/* <Button variant="ghost" size="icon" className="absolute right-4 top-4" onClick={onClose}>
             <X className="h-4 w-4" />
-          </Button>
+          </Button> */}
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
