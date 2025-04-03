@@ -109,7 +109,10 @@ const sampleEvents: Event[] = [
 ]
 
 // Add this near the top of your file
-const API_URL = 'http://localhost:3000/api';
+// Replace the hardcoded API_URL with a dynamic one
+const API_URL = process.env.NODE_ENV === 'production' 
+? '/api'  // In production, use relative path
+: 'http://localhost:3000/api';  // In development, use localhost
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date())
