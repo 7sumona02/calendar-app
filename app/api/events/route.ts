@@ -26,25 +26,59 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const eventData = await request.json()
-    const event = await Event.create(eventData)
-    return NextResponse.json(event, { status: 201 })
+    let eventData;
+    try {
+      eventData = await request.json();
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError);
+      return NextResponse.json(
+        { error: "Invalid JSON data" },
+        { status: 400 }
+      );
+    }
+
+    if (!eventData) {
+      return NextResponse.json(
+        { error: "Event data is required" },
+        { status: 400 }
+      );
+    }
+
+    const event = await Event.create(eventData);
+    return NextResponse.json(event, { status: 201 });
   } catch (error: any) {
+    console.error('Create Event Error:', error);
     return NextResponse.json(
       { error: error.message || "Failed to create event" },
       { status: 400 }
-    )
+    );
   }
 }
 
 export async function PUT(request: Request) {
   try {
     const eventData = await request.json()
-    const { _id, ...updateData } = eventData  // Changed from id to _id
+    const { _id, ...updateData } = eventData
+
+    if (!_id) {
+      return NextResponse.json(
+        { error: "Event ID is required" },
+        { status: 400 }
+      )
+    }
 
     const updatedEvent = await Event.findByIdAndUpdate(
-      _id,  // Changed from id to _id
-      updateData,
+      _id,
+      { 
+        $set: {
+          title: updateData.title,
+          start: updateData.start,
+          end: updateData.end,
+          color: updateData.color,
+          organizer: updateData.organizer,
+          description: updateData.description
+        }
+      },
       { new: true, runValidators: true }
     )
 
@@ -57,6 +91,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json(updatedEvent)
   } catch (error: any) {
+    console.error('Update error:', error)
     return NextResponse.json(
       { error: error.message || "Failed to update event" },
       { status: 400 }

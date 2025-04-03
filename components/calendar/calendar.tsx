@@ -186,33 +186,33 @@ export default function Calendar() {
 
   // Update handleSaveEvent
   const handleSaveEvent = async (event: Event) => {
-    try {
-      if (selectedEvent) {
-        // Update existing event
-        const response = await fetch(`${API_URL}/events/${event._id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(event),
-        });
-        const updatedEvent = await response.json();
-        setEvents(events.map((e) => (e._id === event._id ? updatedEvent : e)));
-      } else {
-        // Add new event
-        const response = await fetch(`${API_URL}/events`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(event),
-        });
-        const newEvent = await response.json();
-        setEvents([...events, newEvent]);
+      try {
+        if (selectedEvent) {
+          // Update existing event - remove the event._id from URL
+          const response = await fetch(`${API_URL}/events`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(event),
+          });
+          const updatedEvent = await response.json();
+          setEvents(events.map((e) => (e._id === event._id ? updatedEvent : e)));
+        } else {
+          // Add new event
+          const response = await fetch(`${API_URL}/events`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(event),
+          });
+          const newEvent = await response.json();
+          setEvents([...events, newEvent]);
+        }
+        setShowEventModal(false);
+        setSelectedEvent(null);
+        setSelectedDate(null);
+      } catch (error) {
+        console.error('Error saving event:', error);
       }
-      setShowEventModal(false);
-      setSelectedEvent(null);
-      setSelectedDate(null);
-    } catch (error) {
-      console.error('Error saving event:', error);
-    }
-  };
+    };
 
   // Update handleDeleteEvent
   const handleDeleteEvent = async (eventId: string) => {
