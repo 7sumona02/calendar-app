@@ -108,6 +108,9 @@ const sampleEvents: Event[] = [
   },
 ]
 
+// Add this near the top of your file
+const API_URL = 'http://localhost:3000/api';
+
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [view, setView] = useState("month")
@@ -166,24 +169,64 @@ export default function Calendar() {
     setShowEventModal(true)
   }
 
-  const handleSaveEvent = (event: Event) => {
-    if (selectedEvent) {
-      // Update existing event
-      setEvents(events.map((e) => (e.id === event.id ? event : e)))
-    } else {
-      // Add new event
-      setEvents([...events, { ...event, id: Math.random().toString(36).substr(2, 9) }])
-    }
-    setShowEventModal(false)
-    setSelectedEvent(null)
-    setSelectedDate(null)
-  }
+  // Update the useEffect to fetch real data
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch(`${API_URL}/events`);
+        const data = await response.json();
+        setEvents(data);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      }
+    };
+    
+    fetchEvents();
+  }, []);
 
-  const handleDeleteEvent = (eventId: string) => {
-    setEvents(events.filter((e) => e.id !== eventId))
-    setShowEventModal(false)
-    setSelectedEvent(null)
-  }
+  // Update handleSaveEvent
+  const handleSaveEvent = async (event: Event) => {
+    try {
+      if (selectedEvent) {
+        // Update existing event
+        const response = await fetch(`${API_URL}/events/${event.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(event),
+        });
+        const updatedEvent = await response.json();
+        setEvents(events.map((e) => (e.id === event.id ? updatedEvent : e)));
+      } else {
+        // Add new event
+        const response = await fetch(`${API_URL}/events`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(event),
+        });
+        const newEvent = await response.json();
+        setEvents([...events, newEvent]);
+      }
+      setShowEventModal(false);
+      setSelectedEvent(null);
+      setSelectedDate(null);
+    } catch (error) {
+      console.error('Error saving event:', error);
+    }
+  };
+
+  // Update handleDeleteEvent
+  const handleDeleteEvent = async (eventId: string) => {
+    try {
+      await fetch(`${API_URL}/events/${eventId}`, {
+        method: 'DELETE',
+      });
+      setEvents(events.filter((e) => e.id !== eventId));
+      setShowEventModal(false);
+      setSelectedEvent(null);
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
+  };
 
   const getViewTitle = () => {
     if (view === "month") {

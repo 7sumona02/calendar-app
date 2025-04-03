@@ -1,69 +1,87 @@
 import { NextResponse } from "next/server"
-import type { Event } from "@/types/event"
+import { connectDB } from "@/lib/config/db"
+import Event from "@/lib/models/Event"
 
-// In a real application, this would connect to MongoDB
-// This is just a mock implementation for demonstration
+// Connect to MongoDB
+const LoadDB = async () => {
+  try {
+    await connectDB()
+  } catch (error) {
+    console.error("Error connecting to MongoDB:", error)
+    throw new Error("Failed to connect to MongoDB")
+  }
+}
 
-let events: Event[] = [
-  {
-    id: "1",
-    title: "Movie night",
-    start: new Date(new Date().setHours(19, 23, 0, 0)),
-    end: new Date(new Date().setHours(20, 23, 0, 0)),
-    color: "red",
-    organizer: "Emily Davis",
-    description: "Watching the latest blockbuster movie with friends.",
-  },
-  {
-    id: "2",
-    title: "Football match",
-    start: new Date(new Date().setHours(22, 30, 0, 0)),
-    end: new Date(new Date().setHours(23, 45, 0, 0)),
-    color: "red",
-    location: "City Stadium",
-  },
-  {
-    id: "3",
-    title: "Content planning session",
-    start: new Date(new Date().setHours(23, 30, 0, 0)),
-    end: new Date(new Date().setHours(23, 59, 0, 0)),
-    color: "red",
-    organizer: "Marketing Team",
-    description: "Planning content for the next quarter.",
-  },
-]
+LoadDB()
 
 export async function GET() {
-  return NextResponse.json(events)
+  try {
+    const events = await Event.find().sort({ start: 1 })
+    return NextResponse.json(events)
+    // return NextResponse.json({ message: "Events fetched successfully" })
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to fetch events" }, { status: 500 })
+  }
 }
 
 export async function POST(request: Request) {
-  const event = await request.json()
-
-  // Generate a new ID
-  event.id = Math.random().toString(36).substr(2, 9)
-
-  // Add to events array
-  events.push(event)
-
-  return NextResponse.json(event)
+  try {
+    const eventData = await request.json()
+    const event = await Event.create(eventData)
+    return NextResponse.json(event, { status: 201 })
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || "Failed to create event" },
+      { status: 400 }
+    )
+  }
 }
 
 export async function PUT(request: Request) {
-  const updatedEvent = await request.json()
+  try {
+    const eventData = await request.json()
+    const { id, ...updateData } = eventData
 
-  // Find and update the event
-  events = events.map((event) => (event.id === updatedEvent.id ? updatedEvent : event))
+    const updatedEvent = await Event.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    )
 
-  return NextResponse.json(updatedEvent)
+    if (!updatedEvent) {
+      return NextResponse.json(
+        { error: "Event not found" },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json(updatedEvent)
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error.message || "Failed to update event" },
+      { status: 400 }
+    )
+  }
 }
 
 export async function DELETE(request: Request) {
-  const { id } = await request.json()
+  try {
+    const { id } = await request.json()
+    const deletedEvent = await Event.findByIdAndDelete(id)
 
-  // Remove the event
-  events = events.filter((event) => event.id !== id)
+    if (!deletedEvent) {
+      return NextResponse.json(
+        { error: "Event not found" },
+        { status: 404 }
+      )
+    }
 
-  return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to delete event" },
+      { status: 500 }
+    )
+  }
 }
 
