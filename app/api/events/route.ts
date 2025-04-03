@@ -40,10 +40,10 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const eventData = await request.json()
-    const { id, ...updateData } = eventData
+    const { _id, ...updateData } = eventData  // Changed from id to _id
 
     const updatedEvent = await Event.findByIdAndUpdate(
-      id,
+      _id,  // Changed from id to _id
       updateData,
       { new: true, runValidators: true }
     )
@@ -66,8 +66,21 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const { id } = await request.json()
-    const deletedEvent = await Event.findByIdAndDelete(id)
+    const { searchParams } = new URL(request.url)
+    const _id = searchParams.get('id')  // Keep as 'id' in query param for backward compatibility
+
+    if (!_id) {
+      return NextResponse.json(
+        { error: "Event ID is required" },
+        { status: 400 }
+      )
+    }
+
+    console.log('Attempting to delete event with ID:', _id)
+
+    const deletedEvent = await Event.findByIdAndDelete(_id)
+    
+    console.log('Delete result:', deletedEvent) // Debug log
 
     if (!deletedEvent) {
       return NextResponse.json(
@@ -76,8 +89,9 @@ export async function DELETE(request: Request) {
       )
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, deletedEvent })
   } catch (error) {
+    console.error('Delete error:', error) // Debug log
     return NextResponse.json(
       { error: "Failed to delete event" },
       { status: 500 }

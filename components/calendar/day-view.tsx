@@ -67,7 +67,7 @@ export default function DayView({ currentDate, events, onDateClick, onEventClick
         <div className="p-3 space-y-1.5 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
           {dayEvents.map((event) => (
             <div
-              key={event.id}
+              key={event._id}
               className={cn(
                 "text-xs px-3 py-1.5 rounded-md cursor-pointer flex items-center shadow-sm transition-colors",
                 event.color === "red" &&
@@ -205,7 +205,7 @@ export default function DayView({ currentDate, events, onDateClick, onEventClick
               <div className="space-y-3">
                 {currentEvents.map((event) => (
                   <div
-                    key={event.id}
+                    key={event._id}
                     className="p-3 rounded-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
                     onClick={() => onEventClick(event)}
                   >
@@ -241,7 +241,7 @@ export default function DayView({ currentDate, events, onDateClick, onEventClick
               <div className="space-y-3">
                 {dayEvents.map((event) => (
                   <div
-                    key={event.id}
+                    key={event._id}
                     className={cn(
                       "p-3 rounded-md border shadow-sm cursor-pointer hover:shadow-md transition-shadow",
                       event.color === "red" && "border-l-2 border-red-500",

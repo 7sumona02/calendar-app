@@ -43,7 +43,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 // Sample events data - in a real app, this would come from the MongoDB backend
 const sampleEvents: Event[] = [
   {
-    id: "1",
+    _id: "1",
     title: "Movie night",
     start: new Date(new Date().setHours(19, 23, 0, 0)),
     end: new Date(new Date().setHours(20, 23, 0, 0)),
@@ -51,56 +51,56 @@ const sampleEvents: Event[] = [
     organizer: "Emily Davis",
   },
   {
-    id: "2",
+    _id: "2",
     title: "Football match",
     start: new Date(new Date().setHours(22, 30, 0, 0)),
     end: new Date(new Date().setHours(23, 45, 0, 0)),
     color: "red",
   },
   {
-    id: "3",
+    _id: "3",
     title: "Content planning session",
     start: new Date(new Date().setHours(23, 30, 0, 0)),
     end: new Date(new Date().setHours(23, 59, 0, 0)),
     color: "red",
   },
   {
-    id: "4",
+    _id: "4",
     title: "Basketball game",
     start: addDays(new Date(new Date().setHours(15, 53, 0, 0)), 1),
     end: addDays(new Date(new Date().setHours(17, 30, 0, 0)), 1),
     color: "yellow",
   },
   {
-    id: "5",
+    _id: "5",
     title: "Basketball game",
     start: addDays(new Date(new Date().setHours(15, 25, 0, 0)), 2),
     end: addDays(new Date(new Date().setHours(17, 0, 0, 0)), 2),
     color: "yellow",
   },
   {
-    id: "6",
+    _id: "6",
     title: "Basketball game",
     start: addDays(new Date(new Date().setHours(20, 46, 0, 0)), 3),
     end: addDays(new Date(new Date().setHours(22, 0, 0, 0)), 3),
     color: "yellow",
   },
   {
-    id: "7",
+    _id: "7",
     title: "Partnership negotiation",
     start: addDays(new Date(new Date().setHours(21, 4, 0, 0)), 3),
     end: addDays(new Date(new Date().setHours(22, 30, 0, 0)), 3),
     color: "orange",
   },
   {
-    id: "8",
+    _id: "8",
     title: "Client presentation",
     start: addDays(new Date(new Date().setHours(18, 17, 0, 0)), 7),
     end: addDays(new Date(new Date().setHours(19, 30, 0, 0)), 7),
     color: "blue",
   },
   {
-    id: "9",
+    _id: "9",
     title: "Final exam",
     start: addDays(new Date(new Date().setHours(18, 59, 0, 0)), 7),
     end: addDays(new Date(new Date().setHours(20, 30, 0, 0)), 7),
@@ -189,13 +189,13 @@ export default function Calendar() {
     try {
       if (selectedEvent) {
         // Update existing event
-        const response = await fetch(`${API_URL}/events/${event.id}`, {
+        const response = await fetch(`${API_URL}/events/${event._id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(event),
         });
         const updatedEvent = await response.json();
-        setEvents(events.map((e) => (e.id === event.id ? updatedEvent : e)));
+        setEvents(events.map((e) => (e._id === event._id ? updatedEvent : e)));
       } else {
         // Add new event
         const response = await fetch(`${API_URL}/events`, {
@@ -217,10 +217,16 @@ export default function Calendar() {
   // Update handleDeleteEvent
   const handleDeleteEvent = async (eventId: string) => {
     try {
-      await fetch(`${API_URL}/events/${eventId}`, {
+      const response = await fetch(`${API_URL}/events?id=${eventId}`, {
         method: 'DELETE',
       });
-      setEvents(events.filter((e) => e.id !== eventId));
+
+      if (!response.ok) {
+        throw new Error('Failed to delete event');
+      }
+
+      // Update local state after successful deletion
+      setEvents(events.filter(event => event._id !== eventId));
       setShowEventModal(false);
       setSelectedEvent(null);
     } catch (error) {

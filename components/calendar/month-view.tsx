@@ -89,7 +89,7 @@ export default function MonthView({ currentDate, events, onDateClick, onEventCli
               <div className="mt-1 space-y-1">
                 {dayEvents.slice(0, 3).map((event) => (
                   <div
-                    key={event.id}
+                    key={event._id}
                     className={cn(
                       "flex items-center text-xs rounded-md px-2 py-1 cursor-pointer transition-colors",
                       event.color === "red" && "bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30",

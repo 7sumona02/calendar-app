@@ -49,7 +49,7 @@ export default function WeekView({ currentDate, events, onDateClick, onEventClic
             <div key={dayIndex} className="flex flex-col space-y-1.5">
               {dayEvents.map((event) => (
                 <div
-                  key={event.id}
+                  key={event._id}
                   className={cn(
                     "text-xs px-3 py-1.5 rounded-md cursor-pointer flex items-center shadow-sm transition-colors",
                     event.color === "red" &&

@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Textarea } from "@/components/ui/textarea"
 import type { Event } from "@/types/event"
 
 interface EventModalProps {
@@ -28,7 +27,6 @@ export default function EventModal({ event, date, onClose, onSave, onDelete }: E
   const [endTime, setEndTime] = useState("")
   const [color, setColor] = useState("blue")
   const [organizer, setOrganizer] = useState("")
-  const [description, setDescription] = useState("")
 
   // Initialize form with event data or defaults
   useEffect(() => {
@@ -40,7 +38,6 @@ export default function EventModal({ event, date, onClose, onSave, onDelete }: E
       setEndTime(format(new Date(event.end), "HH:mm"))
       setColor(event.color)
       setOrganizer(event.organizer || "")
-      setDescription(event.description || "")
     } else if (date) {
       setStartDate(format(date, "yyyy-MM-dd"))
       setStartTime("09:00")
@@ -54,17 +51,16 @@ export default function EventModal({ event, date, onClose, onSave, onDelete }: E
     const start = new Date(`${startDate}T${startTime}`)
     const end = new Date(`${endDate}T${endTime}`)
 
-    const newEvent: Event = {
-      id: event?.id || "",
+    const newEvent = {
+      ...(event?._id ? { _id: event._id } : {}), // Only include _id if editing
       title,
       start,
       end,
       color,
       organizer: organizer || undefined,
-      description: description || undefined,
     }
 
-    onSave(newEvent)
+    onSave(newEvent as Event)
   }
 
   return (
@@ -170,22 +166,6 @@ export default function EventModal({ event, date, onClose, onSave, onDelete }: E
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="description" className="font-medium">
-              Description
-            </Label>
-            <div className="relative">
-              <Info className="h-4 w-4 absolute left-3 top-3 text-gray-500" />
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Event description"
-                className="pl-10 min-h-[80px] border-gray-300 dark:border-gray-700"
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-2">
             <Label className="font-medium">Color</Label>
             <RadioGroup value={color} onValueChange={setColor} className="flex flex-wrap gap-3">
               <div className="flex items-center space-x-2">
@@ -229,7 +209,7 @@ export default function EventModal({ event, date, onClose, onSave, onDelete }: E
         </div>
         <DialogFooter className="gap-2">
           {event && (
-            <Button variant="destructive" onClick={() => onDelete(event.id)} className="mr-auto">
+            <Button variant="destructive" onClick={() => onDelete(event._id)} className="mr-auto">
               Delete
             </Button>
           )}
