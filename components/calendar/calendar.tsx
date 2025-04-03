@@ -114,7 +114,7 @@ const API_URL = 'http://localhost:3000/api';
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [view, setView] = useState("month")
-  const [events, setEvents] = useState<Event[]>(sampleEvents)
+  const [events, setEvents] = useState<Event[]>([])  // Initialize with empty array instead of sampleEvents
   const [showEventModal, setShowEventModal] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
