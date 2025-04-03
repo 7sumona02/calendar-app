@@ -388,7 +388,7 @@ export default function Calendar() {
                   <TooltipContent>Month view</TooltipContent>
                 </Tooltip>
               </div>
-              <DropdownMenu>
+              {/* <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
@@ -408,7 +408,7 @@ export default function Calendar() {
                   <DropdownMenuItem>Family</DropdownMenuItem>
                   <DropdownMenuItem>Friends</DropdownMenuItem>
                 </DropdownMenuContent>
-              </DropdownMenu>
+              </DropdownMenu> */}
               <Button
                 size="sm"
                 className="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm"
